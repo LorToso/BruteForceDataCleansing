@@ -1,20 +1,13 @@
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
-import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Reader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -23,6 +16,8 @@ import java.util.stream.Collectors;
  * Created by Lorenzo Toso on 28.11.2016.
  */
 public class Main {
+    public static final String UserID = "738TECHN3158";
+
     public static void main(String[] args) throws IOException {
 //        Reader in = new FileReader(args[0]);
 //
@@ -40,19 +35,41 @@ public class Main {
 
     }
 
-    private static void getInfoFromZip(String[] zips) throws IOException{
+    private static List<Place> getInfoFromZip(String[] zips) throws IOException{
+        String finalRequest = generateQuery(zips);
+        Document doc = Jsoup.connect(finalRequest).get();
+        return extractPlacesFromDocument(doc);
+    }
+
+    private static String generateQuery(String[] zips) {
         String url = "http://production.shippingapis.com/ShippingAPI.dll?API=CityStateLookup&XML=";
-        String xmlStart = "<CityStateLookupRequest USERID=\"738TECHN3158\">";
+        String xmlStart = "<CityStateLookupRequest USERID=\"" + UserID + "\">";
         String xmlEnd = "</CityStateLookupRequest>";
         StringBuilder finalRequest = new StringBuilder();
         finalRequest.append(url).append(xmlStart);
         for (int i = 0; i < zips.length; i++) {
-            finalRequest.append("<ZipCode ID=\"" + i + "\">" + "<Zip5>" + zips[i] + "</Zip5></ZipCode>");
+            finalRequest.append("<ZipCode ID=\"").append(i).append("\">").append("<Zip5>").append(zips[i]).append("</Zip5></ZipCode>");
         }
         finalRequest.append(xmlEnd);
-        Document doc = Jsoup.connect(finalRequest.toString()).get();
-        System.out.println(doc.toString());
+        return finalRequest.toString();
+    }
 
+    private static List<Place> extractPlacesFromDocument(Document doc) {
+        Elements body = doc.select("ZipCode");
+
+        List<Place> places = new ArrayList<>();
+
+
+        for (Element element : body) {
+            Place p = new Place();
+
+            p.zip = element.select("Zip5").text();
+            p.city = element.select("city").text();
+            p.state = element.select("state").text();
+            places.add(p);
+        }
+
+        return places;
     }
 
     private static CSVRecord reformat(CSVRecord record) throws IOException {
@@ -61,8 +78,15 @@ public class Main {
 
         cleanNonNumericValues(recordAsMap, cleanRecordAsMap);
         cleanAddressData(recordAsMap, cleanRecordAsMap);
-
+        cleanSSN(recordAsMap, cleanRecordAsMap);
+        
         return generateNewRecord(cleanRecordAsMap, record);
+    }
+
+    private static void cleanSSN(Map<String, String> recordAsMap, Map<String, String> cleanRecordAsMap) {
+        String SSN = recordAsMap.get("SSN");
+        if(!StringUtils.isNumeric(SSN))
+            SSN = "";
     }
 
     private static void cleanAddressData(Map<String, String> recordAsMap, Map<String, String> cleanRecordAsMap) throws IOException {
