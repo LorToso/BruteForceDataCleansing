@@ -47,7 +47,7 @@ public class Main {
             return value;
         if(key.equals("PO BOX"))
             return value;
-        if(key.equals("POCityStateZi"))
+        if(key.equals("POCityStateZip"))
             return value;
 
         if(!StringUtils.isNumeric(value))
