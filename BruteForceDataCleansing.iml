@@ -9,5 +9,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="org.apache.commons:commons-csv:Latest" level="project" />
     <orderEntry type="library" name="org.apache.commons:commons-lang3:Latest" level="project" />
+    <orderEntry type="library" name="org.jsoup:jsoup:Latest" level="project" />
   </component>
 </module>
