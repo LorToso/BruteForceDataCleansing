@@ -1,3 +1,6 @@
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
@@ -6,29 +9,34 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import javax.annotation.Resource;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * Created by Lorenzo Toso on 28.11.2016.
- */
+
 public class Main {
-    public static final String UserID = "738TECHN3158";
+    private static final String UserID = "738TECHN3158";
+    private static final String DefaultSSN = "00000000";
+
 
     public static void main(String[] args) throws IOException {
-//        Reader in = new FileReader(args[0]);
-//
-//        Appendable out = new FileWriter(args[1]);
-//
-//        CSVParser parser = new CSVParser(in , CSVFormat.MYSQL.withDelimiter(',').withHeader());
-//        CSVPrinter printer = new CSVPrinter(out, CSVFormat.MYSQL.withDelimiter(',').withHeader());
-//
-//        for (CSVRecord record : parser) {
-//            CSVRecord newRecord = reformat(record);
-//        }
+
+        Reader in = new FileReader(args[0]);
+
+        Appendable out = new FileWriter(args[1]);
+
+        CSVParser parser = new CSVParser(in , CSVFormat.MYSQL.withDelimiter(',').withHeader());
+        CSVPrinter printer = new CSVPrinter(out, CSVFormat.MYSQL.withDelimiter(',').withHeader());
+
+        for (CSVRecord record : parser) {
+            CSVRecord newRecord = reformat(record);
+        }
         String[] zips = {"95405", "72846", "77316"};
         getInfoFromZip(zips);
 
@@ -85,8 +93,13 @@ public class Main {
 
     private static void cleanSSN(Map<String, String> recordAsMap, Map<String, String> cleanRecordAsMap) {
         String SSN = recordAsMap.get("SSN");
-        if(!StringUtils.isNumeric(SSN))
-            SSN = "";
+        if(!StringUtils.isNumeric(SSN) || SSN.isEmpty())
+            SSN = DefaultSSN;
+        else if(SSN.length() > 10)
+            SSN = SSN.substring(0,9);
+        else if(SSN.length() < 8)
+            SSN = DefaultSSN;
+        cleanRecordAsMap.put("SSN", SSN);
     }
 
     private static void cleanAddressData(Map<String, String> recordAsMap, Map<String, String> cleanRecordAsMap) throws IOException {
