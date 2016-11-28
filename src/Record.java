@@ -19,6 +19,7 @@ public class Record {
     {
         throw new NotImplementedException("Noch nicht fertig");
     }
+
     public static List<Record> from(List<CSVRecord> csvRecords)
     {
         return csvRecords.stream().map(Record::from).collect(Collectors.toList());
@@ -71,14 +72,14 @@ public class Record {
 
     }
     public void cleanSSN() {
-        String SSN = values.get("SSN");
+        String SSN = values.get("SSN(String)");
         if(!StringUtils.isNumeric(SSN) || SSN.isEmpty())
             SSN = DefaultSSN;
         else if(SSN.length() > 10)
             SSN = SSN.substring(0,9);
         else if(SSN.length() < 8)
             SSN = DefaultSSN;
-        values.put("SSN", SSN);
+        values.put("SSN(String)", SSN);
     }
     public void setPlace(Place place)
     {
