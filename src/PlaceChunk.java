@@ -18,17 +18,22 @@ public class PlaceChunk {
     }
 
 
-    public void lookupMissingFields()
-    {
+    public void lookupMissingFields() throws IOException {
         cleanZipCodes();
-        // Clean Zip
-        // Generate City&State from ZIP
-        // Generate ZIP from City&State&Address (also formats address)
+        generateCityAndStateFromZip();
+        generateZipFromCityStateAndAddress();
+    }
 
+    private void generateZipFromCityStateAndAddress() throws IOException {
+        places = generateZipFromCityStateAndAddress(places);
+    }
+
+    private void generateCityAndStateFromZip() throws IOException {
+        places = generateCityAndStateFromZip(places);
     }
 
     private void cleanZipCodes() {
-
+        places.forEach(Place::cleanZipCode);
     }
 
     public List<Place> getPlaces()
@@ -36,22 +41,33 @@ public class PlaceChunk {
         return places;
     }
 
+    private static List<Place> generateCityAndStateFromZip(List<Place> places) throws IOException{
 
-    private static void cleanFromValidZip(Record[] records) throws IOException {
 
-        String[] zipCodes = new String[records.length];
-        for (int i = 0; i < records.length; i++) {
-            zipCodes[i] = records[i].get("ZIP(String)");
+        String[] zips = new String[places.size()];
+        for (int i = 0; i < places.size(); i++) {
+            zips[i] = places.get(i).zip;
         }
-        List<Place> places = getInfoFromZip(zipCodes);
-        for (int i = 0; i < records.length; i++) {
-            records[i].setPlace(places.get(i));
-        }
-    }
-    private static List<Place> getInfoFromZip(String[] zips) throws IOException{
+
         String finalRequest = generateZipQuery(zips);
         Document doc = Jsoup.connect(finalRequest).get();
-        return extractPlacesFromDocument(doc);
+        List<Place> generatedPlaces = extractPlacesFromDocument(doc);
+
+
+        List<Place> correctPlaces = new ArrayList<>();
+        for (int i = 0; i < places.size(); i++) {
+            if(generatedPlaces.get(i).zip.equals(""))
+                correctPlaces.add(places.get(i));
+            else
+            {
+                Place p = places.get(i);
+                p.state = generatedPlaces.get(i).state;
+                p.city = generatedPlaces.get(i).city;
+                correctPlaces.add(p);
+            }
+        }
+
+        return correctPlaces;
     }
 
     private static String generateZipQuery(String[] zips) {
@@ -85,33 +101,36 @@ public class PlaceChunk {
         return places;
     }
 
-    private static List<Place> getZip(Place[] address) throws IOException {
+
+    private static List<Place> generateZipFromCityStateAndAddress(List<Place> places) throws IOException {
         String url = "http://production.shippingapis.com/ShippingAPI.dll?API=ZipCodeLookup&XML=";
         StringBuilder finalRequest = new StringBuilder();
         finalRequest.append(url);
         finalRequest.append("<ZipCodeLookupRequest USERID=\"" + UserID + "\">");
-        for (int i = 0; i < address.length; i++) {
+        int i = 0;
+        for (Place place : places) {
             finalRequest
-                    .append("<Address ID=\'" + i + "\'>")
+                    .append("<Address ID=\'" + i++ + "\'>")
                     .append("<FirmName></FirmName>")
                     .append("<Address1></Address1>")
-                    .append("<Address2>" + address[i].address + "</Address2>")
-                    .append("<City>" + address[i].city + "</City>")
-                    .append("<State>" + address[i].state + "</State>")
+                    .append("<Address2>" + place.address + "</Address2>")
+                    .append("<City>" + place.city + "</City>")
+                    .append("<State>" + place.state + "</State>")
                     .append("</Address>");
         }
         finalRequest.append("<ZipCodeLookupRequest USERID=\"" + UserID + "\">");
         Document doc = Jsoup.connect(finalRequest.toString()).get();
         Elements body = doc.select("Address");
-        List<Place> places = new ArrayList<>();
+
+        List<Place> places2 = new ArrayList<>();
         for (Element element : body) {
             Place p = new Place();
             p.zip = element.select("Zip5").text();
             p.city = element.select("city").text();
             p.state = element.select("state").text();
             p.address = element.select("Address2").text();
-            places.add(p);
+            places2.add(p);
         }
-        return places;
+        return places2;
     }
 }

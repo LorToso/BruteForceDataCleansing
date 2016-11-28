@@ -61,9 +61,16 @@ public class Main {
     private static Record[] clean(Record[] recordChunk) throws IOException {
 
 
+        PlaceChunk places = new PlaceChunk();
+
         for (Record record : recordChunk) {
             record.cleanNonNumericValues();
             record.cleanSSN();
+            places.add(record.getPlace());
+        }
+        places.lookupMissingFields();
+        for (int i = 0; i < places.getPlaces().size(); i++) {
+            recordChunk[i].setPlace(places.getPlaces().get(i));
         }
 
         //cleanAddressData(recordChunk);

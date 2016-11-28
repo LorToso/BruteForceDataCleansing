@@ -85,6 +85,16 @@ public class Record {
         set("ZIP(String)", place.zip);
         set("City(String)", place.city);
         set("State(String)", place.state);
-        set("Address(String)", place.state);
+        set("Address(String)", place.address);
+    }
+
+    public Place getPlace() {
+
+        Place p = new Place();
+        p.state = get("State(String)");
+        p.city = get("City(String)");
+        p.address = get("Address(String)");
+        p.zip = get("ZIP(String)");
+        return p;
     }
 }
