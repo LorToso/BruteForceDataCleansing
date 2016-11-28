@@ -1,9 +1,11 @@
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -22,16 +24,34 @@ import java.util.stream.Collectors;
  */
 public class Main {
     public static void main(String[] args) throws IOException {
-        Reader in = new FileReader(args[0]);
+//        Reader in = new FileReader(args[0]);
+//
+//        Appendable out = new FileWriter(args[1]);
+//
+//        CSVParser parser = new CSVParser(in , CSVFormat.MYSQL.withDelimiter(',').withHeader());
+//        CSVPrinter printer = new CSVPrinter(out, CSVFormat.MYSQL.withDelimiter(',').withHeader());
+//
+//        for (CSVRecord record : parser) {
+//            CSVRecord newRecord = reformat(record);
+//        }
+        String[] zips = {"95405", "72846", "77316"};
+        getInfoFromZip(zips);
 
-        Appendable out = new FileWriter(args[1]);
 
-        CSVParser parser = new CSVParser(in , CSVFormat.MYSQL.withDelimiter(',').withHeader());
-        CSVPrinter printer = new CSVPrinter(out, CSVFormat.MYSQL.withDelimiter(',').withHeader());
+    }
 
-        for (CSVRecord record : parser) {
-            CSVRecord newRecord = reformat(record);
+    private static void getInfoFromZip(String[] zips) throws IOException{
+        String url = "http://production.shippingapis.com/ShippingAPI.dll?API=CityStateLookup&XML=";
+        String xmlStart = "<CityStateLookupRequest USERID=\"738TECHN3158\">";
+        String xmlEnd = "</CityStateLookupRequest>";
+        StringBuilder finalRequest = new StringBuilder();
+        finalRequest.append(url).append(xmlStart);
+        for (int i = 0; i < zips.length; i++) {
+            finalRequest.append("<ZipCode ID=\"" + i + "\">" + "<Zip5>" + zips[i] + "</Zip5></ZipCode>");
         }
+        finalRequest.append(xmlEnd);
+        Document doc = Jsoup.connect(finalRequest.toString()).get();
+        System.out.println(doc.toString());
 
     }
 
