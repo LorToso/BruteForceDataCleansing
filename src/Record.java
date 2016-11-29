@@ -1,6 +1,4 @@
-import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
@@ -10,6 +8,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Record implements Iterable<String>{
+    private static final int zipLength = 5;
+    private static final String defaultZIP = "00000";
     private static final String DefaultSSN = "00000000";
     private Map<String, String> values = new HashMap<>();
     private Map<String, Integer> headerMap = null;
@@ -72,21 +72,42 @@ public class Record implements Iterable<String>{
     }
     public void cleanSSN() {
         String SSN = values.get("SSN(String)");
+        String cleanSSN = makeNumeric(SSN);
+
+        if(!StringUtils.isNumeric(cleanSSN) || SSN.isEmpty())
+            cleanSSN = DefaultSSN;
+        else if(cleanSSN.length() > 10)
+            cleanSSN = cleanSSN.substring(0,10);
+        else if(cleanSSN.length() < 8)
+            cleanSSN = DefaultSSN;
+        values.put("SSN(String)", cleanSSN);
+    }
+
+    private static String makeNumeric(String SSN) {
         StringBuilder cleanSSNBuilder = new StringBuilder();
         for (int i = 0; i < SSN.length(); i++) {
             char c = SSN.charAt(i);
             if (StringUtils.isNumeric("" + c))
                 cleanSSNBuilder.append(c);
         }
-        String cleanSSN = cleanSSNBuilder.toString();
+        return cleanSSNBuilder.toString();
+    }
 
-        if(!StringUtils.isNumeric(cleanSSN) || SSN.isEmpty())
-            cleanSSN = DefaultSSN;
-        else if(cleanSSN.length() > 10)
-            cleanSSN = cleanSSN.substring(0,9);
-        else if(cleanSSN.length() < 8)
-            cleanSSN = DefaultSSN;
-        values.put("SSN(String)", cleanSSN);
+    public void cleanState(){
+        String state = get("State(String)");
+        if(state.length() != 2)
+            state = "";
+        set("State(String)", state);
+    }
+    public void cleanZip(){
+        String zip = get("ZIP(String)");
+        if(StringUtils.isNumeric(zip))
+            zip = makeNumeric(zip);
+        if(zip.length() > zipLength)
+            zip = zip.substring(0, zipLength);
+        if(zip.length() < zipLength)
+            zip = defaultZIP;
+        set("ZIP(String)", zip);
     }
     public void setPlace(Place place)
     {

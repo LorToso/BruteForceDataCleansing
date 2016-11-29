@@ -75,8 +75,10 @@ public class Main {
         for (int i = 0; i < places.getPlaces().size(); i++) {
             recordChunk[i].setPlace(places.getPlaces().get(i));
         }
-
-        //cleanAddressData(recordChunk);
+        for (Record record : recordChunk) {
+            record.cleanState();
+            record.cleanZip();
+        }
         
         return recordChunk;
     }
