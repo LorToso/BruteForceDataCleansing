@@ -103,6 +103,22 @@ public class PlaceChunk {
 
 
     private static List<Place> generateZipFromCityStateAndAddress(List<Place> places) throws IOException {
+        Document doc = Jsoup.connect(generateZipQuery(places)).get();
+        Elements body = doc.select("Address");
+
+        List<Place> places2 = new ArrayList<>();
+        for (Element element : body) {
+            Place p = new Place();
+            p.zip = element.select("Zip5").text();
+            p.city = element.select("city").text();
+            p.state = element.select("state").text();
+            p.address = element.select("Address2").text();
+            places2.add(p);
+        }
+        return places2;
+    }
+
+    private static String generateZipQuery(List<Place> places) {
         String url = "http://production.shippingapis.com/ShippingAPI.dll?API=ZipCodeLookup&XML=";
         StringBuilder finalRequest = new StringBuilder();
         finalRequest.append(url);
@@ -119,18 +135,6 @@ public class PlaceChunk {
                     .append("</Address>");
         }
         finalRequest.append("</ZipCodeLookupRequest>");
-        Document doc = Jsoup.connect(finalRequest.toString()).get();
-        Elements body = doc.select("Address");
-
-        List<Place> places2 = new ArrayList<>();
-        for (Element element : body) {
-            Place p = new Place();
-            p.zip = element.select("Zip5").text();
-            p.city = element.select("city").text();
-            p.state = element.select("state").text();
-            p.address = element.select("Address2").text();
-            places2.add(p);
-        }
-        return places2;
+        return finalRequest.toString();
     }
 }
