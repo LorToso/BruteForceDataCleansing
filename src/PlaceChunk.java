@@ -107,7 +107,15 @@ public class PlaceChunk {
         Elements body = doc.select("Address");
 
         List<Place> places2 = new ArrayList<>();
-        for (Element element : body) {
+        for (int i = 0; i < places.size(); i++) {
+            Element element = body.get(i);
+
+            if(isInvalidRecord(element))
+            {
+                places2.add(places.get(i));
+                continue;
+            }
+
             Place p = new Place();
             p.zip = element.select("Zip5").text();
             p.city = element.select("city").text();
@@ -118,6 +126,10 @@ public class PlaceChunk {
         return places2;
     }
 
+    private static boolean isInvalidRecord(Element element) {
+        return element.select("Zip5").text().equals("");
+    }
+
     private static String generateZipQuery(List<Place> places) {
         String url = "http://production.shippingapis.com/ShippingAPI.dll?API=ZipCodeLookup&XML=";
         StringBuilder finalRequest = new StringBuilder();
@@ -125,13 +137,12 @@ public class PlaceChunk {
         finalRequest.append("<ZipCodeLookupRequest USERID=\"" + UserID + "\">");
         int i = 0;
         for (Place place : places) {
-            finalRequest
-                    .append("<Address ID=\'" + i++ + "\'>")
+            finalRequest.append("<Address ID=\'").append(i++).append("\'>")
                     .append("<FirmName></FirmName>")
                     .append("<Address1></Address1>")
-                    .append("<Address2>" + place.address + "</Address2>")
-                    .append("<City>" + place.city + "</City>")
-                    .append("<State>" + place.state + "</State>")
+                    .append("<Address2>").append(place.address).append("</Address2>")
+                    .append("<City>").append(place.city).append("</City>")
+                    .append("<State>").append(place.state).append("</State>")
                     .append("</Address>");
         }
         finalRequest.append("</ZipCodeLookupRequest>");
