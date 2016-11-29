@@ -22,7 +22,7 @@ public class Main {
         Appendable out = new FileWriter(args[1]);
 
         CSVParser parser = new CSVParser(in , CSVFormat.RFC4180.withHeader());
-        CSVPrinter printer = new CSVPrinter(out, CSVFormat.MYSQL.withDelimiter(',').withHeader());
+        CSVPrinter printer = new CSVPrinter(out, CSVFormat.RFC4180.withHeader());
 
         List<CSVRecord> csvRecords = parser.getRecords();
         List<Record> records = Record.from(csvRecords);
@@ -35,8 +35,11 @@ public class Main {
             clean(recordChunk);
             Collections.addAll(cleanRecords, recordChunk);
         }
-        List <CSVRecord> cleanCSVRecords = Record.toCSV(cleanRecords, parser);
-        printer.printRecords(cleanCSVRecords);
+
+        cleanRecords.forEach((r) -> r.setHeaderMap(parser.getHeaderMap()));
+        printer.printRecord(parser.getHeaderMap());
+        printer.printRecords(cleanRecords);
+        printer.close();
 
     }
 
@@ -45,7 +48,7 @@ public class Main {
 
         for(int i = 0; i < records.size(); i+=chunkSize)
         {
-            Record[] chunk = new Record[chunkSize];
+            Record[] chunk = new Record[Math.min(chunkSize, records.size() - i)];
             for(int j = 0; j < chunkSize && i + j < records.size(); j++)
             {
                 chunk[j] = records.get(i+j);

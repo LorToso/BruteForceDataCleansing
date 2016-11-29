@@ -118,7 +118,7 @@ public class PlaceChunk {
                     .append("<State>" + place.state + "</State>")
                     .append("</Address>");
         }
-        finalRequest.append("<ZipCodeLookupRequest USERID=\"" + UserID + "\">");
+        finalRequest.append("</ZipCodeLookupRequest>");
         Document doc = Jsoup.connect(finalRequest.toString()).get();
         Elements body = doc.select("Address");
 

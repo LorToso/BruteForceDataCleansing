@@ -3,21 +3,20 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 
-
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class Record {
+public class Record implements Iterable<String>{
     private static final String DefaultSSN = "00000000";
     private Map<String, String> values = new HashMap<>();
+    private Map<String, Integer> headerMap = null;
 
 
-
-    public static List<CSVRecord> toCSV(List<Record> records, CSVParser parser)
-    {
-        throw new NotImplementedException("Noch nicht fertig");
+    public void setHeaderMap(Map<String, Integer> headerMap) {
+        this.headerMap = headerMap;
     }
 
     public static List<Record> from(List<CSVRecord> csvRecords)
@@ -97,5 +96,10 @@ public class Record {
         p.address = get("Address(String)");
         p.zip = get("ZIP(String)");
         return p;
+    }
+
+    @Override
+    public Iterator<String> iterator() {
+        return new RecordIterator(this, headerMap);
     }
 }
