@@ -29,11 +29,12 @@ public class Main {
 
         List<Record[]> recordChunks = splitIntoChunks(records, chunkSize);
 
-
+        int i = 0;
         List<Record> cleanRecords = new ArrayList<>();
         for (Record[] recordChunk : recordChunks) {
             clean(recordChunk);
             Collections.addAll(cleanRecords, recordChunk);
+            System.out.println(i+=5);
         }
 
         cleanRecords.forEach((r) -> r.setHeaderMap(parser.getHeaderMap()));
@@ -67,8 +68,6 @@ public class Main {
         PlaceChunk places = new PlaceChunk();
 
         for (Record record : recordChunk) {
-            record.cleanNonNumericValues();
-            record.cleanSSN();
             places.add(record.getPlace());
         }
         places.lookupMissingFields();
@@ -78,6 +77,8 @@ public class Main {
         for (Record record : recordChunk) {
             record.cleanState();
             record.cleanZip();
+            record.cleanSSN();
+            record.cleanNonNumericValues();
         }
         
         return recordChunk;

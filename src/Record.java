@@ -1,5 +1,6 @@
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.text.WordUtils;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -56,16 +57,16 @@ public class Record implements Iterable<String>{
 
     private static String capitalizeIfNecessary(String key, String value) {
 
-        if(key.equals("DOB"))
+        if(key.equals("DOB(String)"))
             return value;
-        if(key.equals("PO BOX"))
+        if(key.equals("PO BOX(String)"))
             return value;
-        if(key.equals("POCityStateZip"))
+        if(key.equals("POCityStateZip(String)"))
             return value;
 
         if(!StringUtils.isNumeric(value))
         {
-            return StringUtils.capitalize(value);
+            return WordUtils.capitalize(value.toLowerCase());
         }
         return value;
 

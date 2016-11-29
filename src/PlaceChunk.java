@@ -108,8 +108,14 @@ public class PlaceChunk {
 
         List<Place> places2 = new ArrayList<>();
         for (int i = 0; i < places.size(); i++) {
-            Element element = body.get(i);
-
+            Element element = null;
+            try {
+                element = body.get(i);
+            }
+            catch(Exception e)
+            {
+                int j = 0;
+            }
             if(isInvalidRecord(element))
             {
                 places2.add(places.get(i));
@@ -137,6 +143,9 @@ public class PlaceChunk {
         finalRequest.append("<ZipCodeLookupRequest USERID=\"" + UserID + "\">");
         int i = 0;
         for (Place place : places) {
+            if(place.address.contains("#"))
+                place.address = place.address.replace("#", "");
+
             finalRequest.append("<Address ID=\'").append(i++).append("\'>")
                     .append("<FirmName></FirmName>")
                     .append("<Address1></Address1>")
