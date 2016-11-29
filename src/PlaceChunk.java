@@ -4,12 +4,14 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class PlaceChunk {
     private List<Place> places = new ArrayList<>();
+    private static final int timeOutTime = 10*1000;
     private static final String UserID = "738TECHN3158";
 
     public void add(Place place)
@@ -50,7 +52,8 @@ public class PlaceChunk {
         }
 
         String finalRequest = generateZipQuery(zips);
-        Document doc = Jsoup.connect(finalRequest).get();
+        Document doc = getDocumentThreeTimes(finalRequest);
+
         List<Place> generatedPlaces = extractPlacesFromDocument(doc);
 
 
@@ -68,6 +71,30 @@ public class PlaceChunk {
         }
 
         return correctPlaces;
+    }
+
+    private static Document getDocumentThreeTimes(String finalRequest) throws IOException {
+        Document doc = null;
+        try
+        {
+            doc = getDocument(finalRequest);
+        }
+        catch(SocketTimeoutException ex)
+        {
+            try
+            {
+                doc = getDocument(finalRequest);
+            }
+            catch(SocketTimeoutException ex2)
+            {
+                doc = getDocument(finalRequest);
+            }
+        }
+        return doc;
+    }
+
+    private static Document getDocument(String finalRequest) throws IOException {
+        return Jsoup.connect(finalRequest).timeout(timeOutTime).get();
     }
 
     private static String generateZipQuery(String[] zips) {
@@ -103,7 +130,7 @@ public class PlaceChunk {
 
 
     private static List<Place> generateZipFromCityStateAndAddress(List<Place> places) throws IOException {
-        Document doc = Jsoup.connect(generateZipQuery(places)).get();
+        Document doc = getDocumentThreeTimes(generateZipQuery(places));
         Elements body = doc.select("Address");
 
         List<Place> places2 = new ArrayList<>();
