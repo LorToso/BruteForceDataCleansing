@@ -136,13 +136,19 @@ public class PlaceChunk {
         List<Place> places2 = new ArrayList<>();
         for (int i = 0; i < places.size(); i++) {
             Element element = null;
-            try {
+
+            try
+            {
                 element = body.get(i);
             }
             catch(Exception e)
             {
-                int j = 0;
+                // // FIXME: 29.11.2016 this is a terrible hack
+                return generateCityAndStateFromZip(places);
             }
+
+
+
             if(isInvalidRecord(element))
             {
                 places2.add(places.get(i));
@@ -160,7 +166,15 @@ public class PlaceChunk {
     }
 
     private static boolean isInvalidRecord(Element element) {
-        return element.select("Zip5").text().equals("");
+        if(element == null)
+            return true;
+        Elements zips = element.select("Zip5");
+        if(zips == null)
+            return true;
+        String text = element.select("Zip5").text();
+        if(text == null)
+            return true;
+        return  text.equals("");
     }
 
     private static String generateZipQuery(List<Place> places) {
