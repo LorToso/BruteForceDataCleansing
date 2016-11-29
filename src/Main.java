@@ -37,7 +37,7 @@ public class Main {
         }
 
         cleanRecords.forEach((r) -> r.setHeaderMap(parser.getHeaderMap()));
-        printer.printRecord(parser.getHeaderMap());
+        printer.printRecord(parser.getHeaderMap().keySet());
         printer.printRecords(cleanRecords);
         printer.close();
 

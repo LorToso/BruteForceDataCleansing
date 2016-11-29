@@ -72,13 +72,21 @@ public class Record implements Iterable<String>{
     }
     public void cleanSSN() {
         String SSN = values.get("SSN(String)");
-        if(!StringUtils.isNumeric(SSN) || SSN.isEmpty())
-            SSN = DefaultSSN;
-        else if(SSN.length() > 10)
-            SSN = SSN.substring(0,9);
-        else if(SSN.length() < 8)
-            SSN = DefaultSSN;
-        values.put("SSN(String)", SSN);
+        StringBuilder cleanSSNBuilder = new StringBuilder();
+        for (int i = 0; i < SSN.length(); i++) {
+            char c = SSN.charAt(i);
+            if (StringUtils.isNumeric("" + c))
+                cleanSSNBuilder.append(c);
+        }
+        String cleanSSN = cleanSSNBuilder.toString();
+
+        if(!StringUtils.isNumeric(cleanSSN) || SSN.isEmpty())
+            cleanSSN = DefaultSSN;
+        else if(cleanSSN.length() > 10)
+            cleanSSN = cleanSSN.substring(0,9);
+        else if(cleanSSN.length() < 8)
+            cleanSSN = DefaultSSN;
+        values.put("SSN(String)", cleanSSN);
     }
     public void setPlace(Place place)
     {
