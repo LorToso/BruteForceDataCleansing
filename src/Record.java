@@ -100,14 +100,17 @@ public class Record implements Iterable<String>{
             state = "";
         set("State(String)", state);
     }
-    public void cleanZip(){
+    public void cleanZip(boolean strict){
         String zip = get("ZIP(String)");
-        if(StringUtils.isNumeric(zip))
+        if(!StringUtils.isNumeric(zip))
             zip = makeNumeric(zip);
-        if(zip.length() > zipLength)
-            zip = zip.substring(0, zipLength);
-        if(zip.length() < zipLength)
-            zip = defaultZIP;
+        if(strict)
+        {
+            if(zip.length() > zipLength)
+                zip = zip.substring(0, zipLength);
+            if(zip.length() < zipLength)
+                zip = defaultZIP;
+        }
         set("ZIP(String)", zip);
     }
     public void setPlace(Place place)
