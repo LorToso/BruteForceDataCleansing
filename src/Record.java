@@ -14,7 +14,7 @@ public class Record implements Iterable<String>{
     private static final String DefaultSSN = "00000000";
     private Map<String, String> values = new HashMap<>();
     private Map<String, Integer> headerMap = null;
-
+    private String additionalInfoHiddenInZip = "";
 
     public void setHeaderMap(Map<String, Integer> headerMap) {
         this.headerMap = headerMap;
@@ -24,7 +24,7 @@ public class Record implements Iterable<String>{
     {
         return csvRecords.stream().map(Record::from).collect(Collectors.toList());
     }
-    public static Record from(CSVRecord csvRecord)
+    private static Record from(CSVRecord csvRecord)
     {
         Record r = new Record();
         r.values = csvRecord.toMap();
@@ -36,7 +36,7 @@ public class Record implements Iterable<String>{
             throw new RuntimeException("Key does not exist!");
         return values.get(key);
     }
-    public void set(String key, String value)
+    private void set(String key, String value)
     {
         values.put(key, value);
     }
@@ -94,16 +94,26 @@ public class Record implements Iterable<String>{
         return cleanSSNBuilder.toString();
     }
 
-    public void cleanState(){
+    public void cleanState(boolean tryHarder){
         String state = get("State(String)");
         if(state.length() != 2)
             state = "";
+        if(state.equals("") && tryHarder)
+        {
+            if(additionalInfoHiddenInZip.length() >= 2)
+            {
+                state = additionalInfoHiddenInZip.substring(0,2);
+            }
+        }
         set("State(String)", state);
     }
     public void cleanZip(boolean strict){
         String zip = get("ZIP(String)");
         if(!StringUtils.isNumeric(zip))
+        {
+            additionalInfoHiddenInZip = makeNonNumeric(zip);
             zip = makeNumeric(zip);
+        }
         if(strict)
         {
             if(zip.length() > zipLength)
@@ -113,6 +123,17 @@ public class Record implements Iterable<String>{
         }
         set("ZIP(String)", zip);
     }
+
+    private String makeNonNumeric(String str) {
+        StringBuilder cleanSSNBuilder = new StringBuilder();
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (!StringUtils.isNumeric("" + c))
+                cleanSSNBuilder.append(c);
+        }
+        return cleanSSNBuilder.toString();
+    }
+
     public void setPlace(Place place)
     {
         set("ZIP(String)", place.zip);

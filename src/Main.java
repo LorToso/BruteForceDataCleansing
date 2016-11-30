@@ -65,8 +65,8 @@ public class Main {
     private static Record[] clean(Record[] recordChunk) throws IOException {
 
         for (Record record : recordChunk) {
-            record.cleanState();
             record.cleanZip(false);
+            record.cleanState(true);
             record.cleanSSN();
             record.cleanNonNumericValues();
         }
@@ -80,8 +80,8 @@ public class Main {
             recordChunk[i].setPlace(places.getPlaces().get(i));
         }
         for (Record record : recordChunk) {
-            record.cleanState();
             record.cleanZip(true);
+            record.cleanState(false);
             record.cleanSSN();
             record.cleanNonNumericValues();
         }

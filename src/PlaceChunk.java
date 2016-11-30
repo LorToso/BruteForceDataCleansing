@@ -21,7 +21,7 @@ public class PlaceChunk {
 
 
     public void lookupMissingFields() throws IOException {
-        cleanZipCodes();
+        //cleanZipCodes();
         generateCityAndStateFromZip();
         generateZipFromCityStateAndAddress();
     }
@@ -32,10 +32,6 @@ public class PlaceChunk {
 
     private void generateCityAndStateFromZip() throws IOException {
         places = generateCityAndStateFromZip(places);
-    }
-
-    private void cleanZipCodes() {
-        places.forEach(Place::cleanZipCode);
     }
 
     public List<Place> getPlaces()
