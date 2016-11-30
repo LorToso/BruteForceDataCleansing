@@ -59,7 +59,7 @@ public class Record implements Iterable<String>{
 
         if(key.equals("DOB(String)"))
             return value;
-        if(key.equals("PO BOX(String)"))
+        if(key.equals("POBox(String)"))
             return value;
         if(key.equals("POCityStateZip(String)"))
             return value;
@@ -75,7 +75,7 @@ public class Record implements Iterable<String>{
         String SSN = values.get("SSN(String)");
         String cleanSSN = makeNumeric(SSN);
 
-        if(!StringUtils.isNumeric(cleanSSN) || SSN.isEmpty())
+        if(cleanSSN.isEmpty())
             cleanSSN = DefaultSSN;
         else if(cleanSSN.length() > 10)
             cleanSSN = cleanSSN.substring(0,10);
