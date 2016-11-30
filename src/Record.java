@@ -66,7 +66,7 @@ public class Record implements Iterable<String>{
 
         if(!StringUtils.isNumeric(value))
         {
-            return WordUtils.capitalize(value.toLowerCase());
+            return value.toUpperCase();//WordUtils.capitalize(value.toLowerCase());
         }
         return value;
 
