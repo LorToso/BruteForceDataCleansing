@@ -1,0 +1,10 @@
+The given database has been cleaned, using  the following strategy:
+
+1. Step: All non-numeric characters have been removed from the Zip-Code column, as a first attempt to generate more valid zip-codes
+2. Step: The USPS Webside (https://www.usps.com/) provides a web-api with specific xml-masks, that returns corresponding City and State for given Zip-Codes.
+		This tool has been used to generate the according data in the desired format (such as states represented by there two-letter abreviations)
+3. Step: The USPS Website also provides a web-api, that takes in an address and returns the corresponding zip-code, together with an address representation
+		in the format, that was defined in the given task. This tool has been used to clean up addresses and add zipcodes in records where no valid zipcode was given yet.
+4. Step: All values have been mapped to uppercase, as it was specified in the given task.
+
+Using this strategy, we where able to achieve a precision value of 0.8949 with a corresponding recall value of 0.9347. The implementation of the task has taken us approximately 10 hours.
