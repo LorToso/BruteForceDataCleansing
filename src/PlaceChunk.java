@@ -21,7 +21,6 @@ public class PlaceChunk {
 
 
     public void lookupMissingFields() throws IOException {
-        //cleanZipCodes();
         generateCityAndStateFromZip();
         generateZipFromCityStateAndAddress();
     }
